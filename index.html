@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini ToDo List 📝</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+  <style>
+    .done { text-decoration: line-through; color: #bbb; }
+    .delete { color: #db3c3c; border: none; background: transparent; font-size: 1.3em; cursor: pointer; }
+    .delete:focus { outline: 2px solid #db3c3c;}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>📝 ToDo List</h1>
+      <p>Ajoute, coche et supprime tes tâches simplement !</p>
+    </header>
+
+    <section aria-labelledby="form-ajout">
+      <form id="task-form" autocomplete="off">
+        <label for="task-input">Nouvelle tâche :</label>
+        <input id="task-input" type="text" required placeholder="Ex : Réviser le cours JS">
+        <button type="submit">Ajouter</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="liste-taches">
+      <ul id="task-list" aria-live="polite">
+      </ul>
+      <button id="clear-tasks" class="secondary">Tout effacer</button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
