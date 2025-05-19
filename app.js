@@ -1,70 +1,95 @@
-// TODO: 1 - Récupérer les éléments HTML à manipuler
-//    - L'input pour la tâche (#task-input)
-//    - Le formulaire (#task-form)
-//    - La liste UL (#task-list)
-//    - Le bouton pour tout effacer (#clear-tasks)
+const formElement = document.querySelector('#task-form');
+const inputElement = document.querySelector('#task-input');
+const taskListElement = document.querySelector('#task-list');
+const clearButtonElement = document.querySelector('#clear-tasks');
+
+function addTask(tasksArray, newTaskText) {
+  return [
+    ...tasksArray,
+    { text: newTaskText, done: false }
+  ];
+}
+
+function removeTask(tasksArray, taskIndex) {
+  return tasksArray.filter((_, currentIndex) => currentIndex !== taskIndex);
+}
+
+function toggleTaskDone(tasksArray, taskIndex) {
+  return tasksArray.map((task, currentIndex) => {
+    if (currentIndex === taskIndex) {
+      return { ...task, done: !task.done };
+    }
+    return task;
+  });
+}
+
+function clearAllTasks() {
+  return [];
+}
+
+function loadTasksFromStorage() {
+  return JSON.parse(localStorage.getItem('tasks')) || [];
+}
+
+function saveTasksToStorage(tasksArray) {
+  localStorage.setItem('tasks', JSON.stringify(tasksArray));
+}
 
 
+function renderTaskList(tasksArray) {
+  taskListElement.textContent = '';
+  tasksArray.forEach((taskObject, taskIndex) => {
+    const listItemElement = document.createElement('li');
+    listItemElement.style.display = "flex";
+    listItemElement.style.alignItems = "center";
+    listItemElement.style.justifyContent = "space-between";
 
 
-//-------------------------------------------------------------
+    const taskTextElement = document.createElement('span');
+    taskTextElement.textContent = taskObject.text;
+    taskTextElement.className = taskObject.done ? 'done' : '';
+    taskTextElement.style.cursor = "pointer";
 
-// TODO: 2 - Créer un tableau JS pour stocker les tâches
-//    - Soit un tableau de strings ("xyz"), soit (PLUS PROPRE) un tableau d'objets [{ text, done }, ...]
+    taskTextElement.addEventListener('click', () => {
+      tasksState.tasksArray = toggleTaskDone(tasksState.tasksArray, taskIndex);
+      saveTasksToStorage(tasksState.tasksArray);
+      renderTaskList(tasksState.tasksArray);
+    });
 
+    const deleteButtonElement = document.createElement('button');
+    deleteButtonElement.textContent = '🗑️';
+    deleteButtonElement.className = 'delete';
+    deleteButtonElement.title = "Supprimer";
+    deleteButtonElement.addEventListener('click', () => {
+      tasksState.tasksArray = removeTask(tasksState.tasksArray, taskIndex);
+      saveTasksToStorage(tasksState.tasksArray);
+      renderTaskList(tasksState.tasksArray);
+    });
 
+    listItemElement.append(taskTextElement, deleteButtonElement);
 
+    taskListElement.appendChild(listItemElement);
+  });
+}
 
-//-------------------------------------------------------------
+const tasksState = {
+  tasksArray: loadTasksFromStorage()
+};
 
-// TODO: 3 - (Bonus) Charger les tâches sauvegardées dans le localStorage au chargement, sinon tableau vide
+formElement.addEventListener('submit', event => {
+  event.preventDefault();
+  const newTaskText = inputElement.value.trim();
+  if (!newTaskText) return;
+  tasksState.tasksArray = addTask(tasksState.tasksArray, newTaskText);
+  inputElement.value = '';
+  saveTasksToStorage(tasksState.tasksArray);
+  renderTaskList(tasksState.tasksArray);
+});
 
+clearButtonElement.addEventListener('click', () => {
+  tasksState.tasksArray = clearAllTasks();
+  saveTasksToStorage(tasksState.tasksArray);
+  renderTaskList(tasksState.tasksArray);
+});
 
-
-
-
-//-------------------------------------------------------------
-
-// TODO: 4 - Fonction pour afficher toutes les tâches dans le HTML
-//    - Utilise une boucle pour générer les <li> avec texte + bouton supprimer + classe "done" si besoin
-
-
-
-
-
-//-------------------------------------------------------------
-
-// TODO: 5 - Gestion de l'ajout d'une tâche
-//    - À la soumission du form : preventDefault(), vérifie input non vide (trim())
-//    - Ajoute dans le tableau, reset l'input, met à jour affichage et sauvegarde
-
-
-
-
-
-//-------------------------------------------------------------
-
-// TODO: 6 - Suppression d'une tâche
-//    - Bouton delete sur chaque tâche -> retire du tableau -> rafraîchit affichage et sauvegarde
-
-
-
-
-
-//-------------------------------------------------------------
-
-// TODO: 7 - Marquer une tâche comme faite
-//    - Clic sur le texte : toggle la propriété "done", bonus press Entrer pour ajouter la classe "done", sauvegarde
-
-
-
-
-
-//-------------------------------------------------------------
-
-// TODO: 8 - "Tout effacer" : vide le tableau et localStorage, rafraîchis
-
-
-
-
-
+renderTaskList(tasksState.tasksArray);
